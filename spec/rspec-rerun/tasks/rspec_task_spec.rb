@@ -28,6 +28,16 @@ describe "RakeTask" do
     system! "cd #{@root} && RSPEC_RERUN_MARKER=#{@filename} RSPEC_RERUN_PATTERN=spec-runs/fails_twice_spec.rb rake rspec-rerun:spec[2]"
   end
 
+  it 'combines xml for multiple retris failures' do
+    system! "cd #{@root} && RSPEC_RERUN_MARKER=#{@filename} RSPEC_RERUN_PATTERN=spec-runs/fails_twice_spec.rb rake rspec-rerun:spec[2]"
+
+    f = File.open("#{@root}/coverage/junit/results.xml")
+    doc = Nokogiri::XML(f)
+    f.close
+
+    expect(doc.xpath('//failure').empty?).to be_true
+  end
+
   it "retries a spec failure via RSPEC_RERUN_RETRY_COUNT" do
     system! "cd #{@root} && RSPEC_RERUN_RETRY_COUNT=2 RSPEC_RERUN_MARKER=#{@filename} RSPEC_RERUN_PATTERN=spec-runs/fails_twice_spec.rb rake rspec-rerun:spec[2]"
   end
